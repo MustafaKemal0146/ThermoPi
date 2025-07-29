@@ -400,9 +400,9 @@ MIT License - Özgürce kullanın, değiştirin, dağıtın
 ## 👨‍💻 Geliştirici
 
 <div align="center">
-<img src="https://images.pexels.com/photos/163100/circuit-circuit-board-resistor-computer-163100.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop" width="100" style="border-radius: 50%;" alt="ThermoPi Developer"/>
+  <img src="https://github.com/MustafaKemal0146.png" width="100" style="border-radius: 50%;" alt="Mustafa Kemal Çıngıl"/>
 
-**Mustafa Kemal Cingil**
+**Mustafa Kemal Çıngıl**
 
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/MustafaKemal0146)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mustafakemalcingil/)
