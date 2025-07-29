@@ -42,7 +42,7 @@ class FanController:
     def initialize_gpio(self):
         """Initialize GPIO and PWM for fan control"""
         if GPIO is None:
-            print("GPIO not available - running in simulation mode")
+            print("⚠️  GPIO mevcut değil - simülasyon modunda çalışıyor")
             self.is_initialized = True
             return
             
@@ -52,9 +52,9 @@ class FanController:
             self.pwm = GPIO.PWM(self.fan_pin, self.pwm_frequency)
             self.pwm.start(0)
             self.is_initialized = True
-            print(f"Fan controller initialized on GPIO pin {self.fan_pin}")
+            print(f"✅ Fan kontrolcüsü GPIO pin {self.fan_pin} üzerinde başlatıldı")
         except Exception as e:
-            print(f"Error initializing GPIO: {e}")
+            print(f"❌ GPIO başlatma hatası: {e}")
             self.is_initialized = False
     
     def set_fan_speed(self, speed_percent: int):
@@ -147,9 +147,16 @@ class FanControlGUI:
         
         # Create main window
         self.root = tk.Tk()
-        self.root.title("Raspberry Pi 5 Fan Controller")
-        self.root.geometry("500x400")
+        self.root.title("🌡️ ThermoPi - Akıllı Fan Kontrol")
+        self.root.geometry("600x500")
+        self.root.resizable(True, True)
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
+        # Set window icon and styling
+        try:
+            self.root.configure(bg='#2b2b2b')
+        except:
+            pass
         
         self.setup_gui()
         self.start_background_thread()
@@ -161,30 +168,30 @@ class FanControlGUI:
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Temperature display
-        temp_frame = ttk.LabelFrame(main_frame, text="Temperature", padding="10")
-        temp_frame.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
+        temp_frame = ttk.LabelFrame(main_frame, text="🌡️ Sıcaklık Durumu", padding="15")
+        temp_frame.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=8)
         
-        self.temp_label = ttk.Label(temp_frame, text="CPU Temperature: --°C", font=("Arial", 14))
+        self.temp_label = ttk.Label(temp_frame, text="CPU Sıcaklığı: --°C", font=("Arial", 16, "bold"))
         self.temp_label.grid(row=0, column=0)
         
         # Mode control
-        mode_frame = ttk.LabelFrame(main_frame, text="Control Mode", padding="10")
-        mode_frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
+        mode_frame = ttk.LabelFrame(main_frame, text="🎛️ Kontrol Modu", padding="15")
+        mode_frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=8)
         
         self.mode_var = tk.BooleanVar()
         self.mode_checkbox = ttk.Checkbutton(
             mode_frame, 
-            text="Automatic Mode", 
+            text="🤖 Otomatik Mod (Sıcaklık Bazlı)", 
             variable=self.mode_var,
             command=self.toggle_mode
         )
-        self.mode_checkbox.grid(row=0, column=0)
+        self.mode_checkbox.grid(row=0, column=0, sticky=tk.W)
         
         # Manual control
-        manual_frame = ttk.LabelFrame(main_frame, text="Manual Control", padding="10")
-        manual_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
+        manual_frame = ttk.LabelFrame(main_frame, text="🎯 Manuel Kontrol", padding="15")
+        manual_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=8)
         
-        ttk.Label(manual_frame, text="Fan Speed:").grid(row=0, column=0, sticky=tk.W)
+        ttk.Label(manual_frame, text="Fan Hızı:", font=("Arial", 12)).grid(row=0, column=0, sticky=tk.W, pady=5)
         
         self.speed_var = tk.IntVar()
         self.speed_scale = ttk.Scale(
@@ -193,19 +200,24 @@ class FanControlGUI:
             to=100,
             orient=tk.HORIZONTAL,
             variable=self.speed_var,
-            command=self.on_speed_change
+            command=self.on_speed_change,
+            length=300
         )
-        self.speed_scale.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
+        self.speed_scale.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=8)
         
-        self.speed_label = ttk.Label(manual_frame, text="0%")
-        self.speed_label.grid(row=1, column=2, padx=10)
+        self.speed_label = ttk.Label(manual_frame, text="0%", font=("Arial", 14, "bold"))
+        self.speed_label.grid(row=1, column=2, padx=15)
         
         # Status display
-        status_frame = ttk.LabelFrame(main_frame, text="Status", padding="10")
-        status_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
+        status_frame = ttk.LabelFrame(main_frame, text="📊 Anlık Durum", padding="15")
+        status_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=8)
         
-        self.status_label = ttk.Label(status_frame, text="Current Fan Speed: 0%", font=("Arial", 12))
-        self.status_label.grid(row=0, column=0)
+        self.status_label = ttk.Label(status_frame, text="Mevcut Fan Hızı: 0%", font=("Arial", 14))
+        self.status_label.grid(row=0, column=0, pady=5)
+        
+        # Add system info
+        self.system_label = ttk.Label(status_frame, text="Sistem: Hazırlanıyor...", font=("Arial", 10))
+        self.system_label.grid(row=1, column=0, pady=2)
         
         # Configure grid weights
         self.root.columnconfigure(0, weight=1)
@@ -219,10 +231,10 @@ class FanControlGUI:
         
         if self.is_auto_mode:
             self.speed_scale.configure(state='disabled')
-            print("Switched to automatic mode")
+            print("🤖 Otomatik moda geçildi")
         else:
             self.speed_scale.configure(state='normal')
-            print("Switched to manual mode")
+            print("🎯 Manuel moda geçildi")
     
     def on_speed_change(self, value):
         """Handle manual speed slider change"""
@@ -233,8 +245,17 @@ class FanControlGUI:
     
     def update_display(self, temperature: float, fan_speed: int):
         """Update GUI display with current values"""
-        self.temp_label.config(text=f"CPU Temperature: {temperature:.1f}°C")
-        self.status_label.config(text=f"Current Fan Speed: {fan_speed}%")
+        # Temperature with color coding
+        temp_color = "green" if temperature < 50 else "orange" if temperature < 65 else "red"
+        self.temp_label.config(text=f"CPU Sıcaklığı: {temperature:.1f}°C")
+        
+        # Status with mode info
+        mode_text = "Otomatik" if self.is_auto_mode else "Manuel"
+        self.status_label.config(text=f"Mevcut Fan Hızı: {fan_speed}% ({mode_text})")
+        
+        # System status
+        status_text = f"GPIO Pin 18 | PWM: {fan_speed}% | Mod: {mode_text}"
+        self.system_label.config(text=status_text)
         
         if not self.is_auto_mode:
             self.speed_var.set(fan_speed)
@@ -296,51 +317,52 @@ class TerminalInterface:
         """Display current status"""
         temperature = self.fan_controller.get_cpu_temperature()
         fan_speed = self.fan_controller.current_speed
-        mode = "Automatic" if self.is_auto_mode else "Manual"
+        mode = "Otomatik" if self.is_auto_mode else "Manuel"
         
-        print(f"\n--- Raspberry Pi 5 Fan Controller ---")
-        print(f"CPU Temperature: {temperature:.1f}°C")
-        print(f"Fan Speed: {fan_speed}%")
-        print(f"Control Mode: {mode}")
-        print("-" * 40)
+        print(f"\n🌡️ --- ThermoPi Durum Raporu ---")
+        print(f"🔥 CPU Sıcaklığı: {temperature:.1f}°C")
+        print(f"🌀 Fan Hızı: {fan_speed}%")
+        print(f"⚙️  Kontrol Modu: {mode}")
+        print(f"🔌 GPIO Pin: 18 (PWM)")
+        print("=" * 40)
     
     def show_menu(self):
         """Display menu options"""
-        print("\nOptions:")
-        print("1. Toggle control mode (Manual/Automatic)")
-        print("2. Set fan speed (Manual mode only)")
-        print("3. View current status")
-        print("4. Exit")
-        print("Choice: ", end="")
+        print("\n📋 Seçenekler:")
+        print("1. 🔄 Kontrol modunu değiştir (Manuel/Otomatik)")
+        print("2. 🎯 Fan hızını ayarla (Sadece manuel modda)")
+        print("3. 📊 Mevcut durumu görüntüle")
+        print("4. 🚪 Çıkış")
+        print("Seçiminiz: ", end="")
     
     def handle_input(self, choice: str):
         """Handle user input"""
         if choice == "1":
             self.is_auto_mode = not self.is_auto_mode
-            mode = "Automatic" if self.is_auto_mode else "Manual"
-            print(f"Switched to {mode} mode")
+            mode = "Otomatik" if self.is_auto_mode else "Manuel"
+            print(f"✅ {mode} moda geçildi")
             
         elif choice == "2":
             if self.is_auto_mode:
-                print("Cannot set manual speed in automatic mode")
+                print("❌ Otomatik modda manuel hız ayarlanamaz")
             else:
                 try:
-                    speed = int(input("Enter fan speed (0-100%): "))
+                    speed = int(input("🎯 Fan hızını girin (0-100%): "))
                     speed = max(0, min(100, speed))
                     self.fan_controller.set_fan_speed(speed)
-                    print(f"Fan speed set to {speed}%")
+                    print(f"✅ Fan hızı {speed}% olarak ayarlandı")
                 except ValueError:
-                    print("Invalid input. Please enter a number between 0 and 100")
+                    print("❌ Geçersiz giriş. Lütfen 0-100 arası bir sayı girin")
                     
         elif choice == "3":
             self.display_status()
             
         elif choice == "4":
             self.is_running = False
-            print("Exiting...")
+            print("👋 Çıkılıyor...")
             
         else:
-            print("Invalid choice. Please try again.")
+            print("❌ Geçersiz seçim. Lütfen tekrar deneyin.")
     
     def run_monitoring_loop(self):
         """Run the monitoring loop in background"""
@@ -368,7 +390,8 @@ class TerminalInterface:
         monitor_thread = threading.Thread(target=self.run_monitoring_loop, daemon=True)
         monitor_thread.start()
         
-        print("Raspberry Pi 5 Fan Controller - Terminal Mode")
+        print("🌡️ ThermoPi - Terminal Modu")
+        print("=" * 50)
         self.display_status()
         
         try:
@@ -378,7 +401,7 @@ class TerminalInterface:
                 self.handle_input(choice)
                 
         except KeyboardInterrupt:
-            print("\nExiting...")
+            print("\n👋 Ctrl+C ile çıkılıyor...")
             self.is_running = False
         
         finally:
@@ -387,15 +410,16 @@ class TerminalInterface:
 
 def main():
     """Main function to run the application"""
-    print("Raspberry Pi 5 Fan Controller")
-    print("Choose interface:")
-    print("1. GUI (Tkinter)")
-    print("2. Terminal")
+    print("🌡️ ThermoPi - Raspberry Pi 5 Akıllı Fan Kontrol Sistemi")
+    print("=" * 60)
+    print("🎨 Arayüz seçin:")
+    print("1. 🖥️  GUI (Grafiksel Arayüz)")
+    print("2. ⌨️  Terminal (Komut Satırı)")
     
     try:
-        choice = input("Enter choice (1 or 2): ").strip()
+        choice = input("\n🎯 Seçiminizi yapın (1 veya 2): ").strip()
     except KeyboardInterrupt:
-        print("\nExiting...")
+        print("\n👋 Çıkılıyor...")
         return
     
     # Initialize components
@@ -404,24 +428,26 @@ def main():
     
     if choice == "1":
         # Run GUI interface
+        print("🖥️  GUI modu başlatılıyor...")
         try:
             gui = FanControlGUI(fan_controller, data_logger)
             gui.run()
         except Exception as e:
-            print(f"Error running GUI: {e}")
+            print(f"❌ GUI çalıştırma hatası: {e}")
             fan_controller.cleanup()
     
     elif choice == "2":
         # Run terminal interface
+        print("⌨️  Terminal modu başlatılıyor...")
         try:
             terminal = TerminalInterface(fan_controller, data_logger)
             terminal.run()
         except Exception as e:
-            print(f"Error running terminal interface: {e}")
+            print(f"❌ Terminal arayüzü hatası: {e}")
             fan_controller.cleanup()
     
     else:
-        print("Invalid choice. Exiting...")
+        print("❌ Geçersiz seçim. Çıkılıyor...")
         fan_controller.cleanup()
 
 
