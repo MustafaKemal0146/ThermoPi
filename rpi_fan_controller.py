@@ -3,6 +3,10 @@
 Raspberry Pi 5 Fan Controller
 A comprehensive fan control system with GUI and terminal interfaces
 Supports both manual and automatic temperature-based fan control
+
+⚠️  UYARI: Bu program sadece Raspberry Pi 5'te çalışır!
+🔧 GPIO pin 18'e bağlı PWM fan gerektirir
+🔐 Sudo yetkisi gerekebilir: sudo python3 rpi_fan_controller.py
 """
 
 import tkinter as tk
@@ -18,8 +22,9 @@ from typing import Optional, Callable
 try:
     import RPi.GPIO as GPIO
 except ImportError:
-    print("Warning: RPi.GPIO not available. Running in simulation mode.")
-    GPIO = None
+    print("HATA: RPi.GPIO kütüphanesi bulunamadı!")
+    print("Lütfen şu komutu çalıştırın: pip3 install RPi.GPIO")
+    sys.exit(1)
 
 class FanController:
     """Core fan controller class handling hardware PWM and temperature reading"""
@@ -29,6 +34,7 @@ class FanController:
         self.pwm_frequency = pwm_frequency
         self.pwm = None
         self.current_speed = 0
+        self.target_speed = 0
         self.is_initialized = False
         
         # Temperature thresholds for automatic mode
@@ -41,34 +47,54 @@ class FanController:
     
     def initialize_gpio(self):
         """Initialize GPIO and PWM for fan control"""
-        if GPIO is None:
-            print("⚠️  GPIO mevcut değil - simülasyon modunda çalışıyor")
-            self.is_initialized = True
-            return
-            
         try:
+            # GPIO cleanup first to avoid conflicts
+            GPIO.cleanup()
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(self.fan_pin, GPIO.OUT)
             self.pwm = GPIO.PWM(self.fan_pin, self.pwm_frequency)
+            
+            # Start PWM and detect current state
             self.pwm.start(0)
+            time.sleep(0.1)  # Allow PWM to stabilize
+            
+            # Try to detect current fan state based on temperature
+            self.detect_current_fan_speed()
+            
             self.is_initialized = True
             print(f"✅ Fan kontrolcüsü GPIO pin {self.fan_pin} üzerinde başlatıldı")
+            print(f"🌀 Tespit edilen fan hızı: {self.current_speed}%")
+            
         except Exception as e:
             print(f"❌ GPIO başlatma hatası: {e}")
+            print("🔧 Sudo ile çalıştırmayı deneyin: sudo python3 rpi_fan_controller.py")
             self.is_initialized = False
+    
+    def detect_current_fan_speed(self):
+        """Initialize fan to known state"""
+        # Start with fan off and let the system control it properly
+        self.current_speed = 0
+        self.target_speed = 0
+        print("🌀 Fan başlangıç durumu: 0% (Kapalı)")
     
     def set_fan_speed(self, speed_percent: int):
         """Set fan speed as percentage (0-100)"""
         speed_percent = max(0, min(100, speed_percent))
-        self.current_speed = speed_percent
+        self.target_speed = speed_percent
         
         if self.pwm and self.is_initialized:
             try:
                 self.pwm.ChangeDutyCycle(speed_percent)
+                self.current_speed = speed_percent  # Update immediately
+                print(f"🌀 Fan hızı ayarlandı: {speed_percent}%")
             except Exception as e:
-                print(f"Error setting fan speed: {e}")
+                print(f"❌ Fan hızı ayarlama hatası: {e}")
         else:
-            print(f"Simulation: Fan speed set to {speed_percent}%")
+            print(f"❌ GPIO başlatılmamış - Fan kontrolü yapılamıyor")
+    
+    def get_current_speed(self) -> int:
+        """Get current fan speed"""
+        return self.current_speed
     
     def get_cpu_temperature(self) -> float:
         """Read CPU temperature from thermal zone"""
@@ -78,9 +104,9 @@ class FanController:
                 temp_celsius = float(temp_raw) / 1000.0
                 return temp_celsius
         except Exception as e:
-            print(f"Error reading temperature: {e}")
-            # Return simulated temperature for testing
-            return 45.0 + (time.time() % 30)  # Simulated temp between 45-75°C
+            print(f"❌ Sıcaklık okuma hatası: {e}")
+            print("🔧 Thermal zone dosyasını kontrol edin: /sys/class/thermal/thermal_zone0/temp")
+            raise Exception("Sıcaklık sensörü erişilemez - Program durduruluyor")
     
     def calculate_auto_speed(self, temperature: float) -> int:
         """Calculate fan speed based on temperature for automatic mode"""
@@ -98,11 +124,22 @@ class FanController:
     
     def cleanup(self):
         """Clean up GPIO resources"""
-        if self.pwm:
-            self.pwm.stop()
-        if GPIO and self.is_initialized:
-            GPIO.cleanup()
-        print("GPIO cleanup completed")
+        try:
+            if self.pwm:
+                self.pwm.ChangeDutyCycle(0)  # Fan'ı kapat
+                time.sleep(0.1)
+                self.pwm.stop()
+                print("🌀 Fan durduruldu")
+            
+            if self.is_initialized:
+                GPIO.cleanup()
+                print("🧹 GPIO temizlendi")
+                
+        except Exception as e:
+            print(f"⚠️ Cleanup hatası: {e}")
+        
+        self.current_speed = 0
+        self.is_initialized = False
 
 
 class DataLogger:
@@ -271,22 +308,23 @@ class FanControlGUI:
                     # Automatic mode: calculate speed based on temperature
                     target_speed = self.fan_controller.calculate_auto_speed(temperature)
                     self.fan_controller.set_fan_speed(target_speed)
-                else:
-                    # Manual mode: use current slider value
-                    target_speed = self.fan_controller.current_speed
+                
+                # Always get current speed from controller
+                current_speed = self.fan_controller.get_current_speed()
                 
                 # Update GUI in main thread
-                self.root.after(0, self.update_display, temperature, self.fan_controller.current_speed)
+                self.root.after(0, self.update_display, temperature, current_speed)
                 
                 # Log data
-                mode = "Auto" if self.is_auto_mode else "Manual"
-                self.data_logger.log_data(temperature, self.fan_controller.current_speed, mode)
+                mode = "Otomatik" if self.is_auto_mode else "Manuel"
+                self.data_logger.log_data(temperature, current_speed, mode)
                 
                 time.sleep(1)  # Update every second
                 
             except Exception as e:
-                print(f"Error in background worker: {e}")
-                time.sleep(1)
+                print(f"❌ Kritik hata - Arka plan işlem durduruluyor: {e}")
+                self.is_running = False
+                break
     
     def start_background_thread(self):
         """Start the background monitoring thread"""
@@ -316,12 +354,18 @@ class TerminalInterface:
     def display_status(self):
         """Display current status"""
         temperature = self.fan_controller.get_cpu_temperature()
-        fan_speed = self.fan_controller.current_speed
+        fan_speed = self.fan_controller.get_current_speed()
         mode = "Otomatik" if self.is_auto_mode else "Manuel"
         
+        # Temperature status with emoji
+        temp_emoji = "❄️" if temperature < 45 else "🌡️" if temperature < 60 else "🔥"
+        
+        # Fan status with emoji
+        fan_emoji = "⏹️" if fan_speed == 0 else "🌀" if fan_speed < 50 else "💨"
+        
         print(f"\n🌡️ --- ThermoPi Durum Raporu ---")
-        print(f"🔥 CPU Sıcaklığı: {temperature:.1f}°C")
-        print(f"🌀 Fan Hızı: {fan_speed}%")
+        print(f"{temp_emoji} CPU Sıcaklığı: {temperature:.1f}°C")
+        print(f"{fan_emoji} Fan Hızı: {fan_speed}%")
         print(f"⚙️  Kontrol Modu: {mode}")
         print(f"🔌 GPIO Pin: 18 (PWM)")
         print("=" * 40)
@@ -374,15 +418,19 @@ class TerminalInterface:
                     target_speed = self.fan_controller.calculate_auto_speed(temperature)
                     self.fan_controller.set_fan_speed(target_speed)
                 
+                # Get current speed from controller
+                current_speed = self.fan_controller.get_current_speed()
+                
                 # Log data
-                mode = "Auto" if self.is_auto_mode else "Manual"
-                self.data_logger.log_data(temperature, self.fan_controller.current_speed, mode)
+                mode = "Otomatik" if self.is_auto_mode else "Manuel"
+                self.data_logger.log_data(temperature, current_speed, mode)
                 
                 time.sleep(1)
                 
             except Exception as e:
-                print(f"Error in monitoring loop: {e}")
-                time.sleep(1)
+                print(f"❌ Kritik hata - İzleme döngüsü durduruluyor: {e}")
+                self.is_running = False
+                break
     
     def run(self):
         """Run the terminal interface"""
@@ -412,6 +460,17 @@ def main():
     """Main function to run the application"""
     print("🌡️ ThermoPi - Raspberry Pi 5 Akıllı Fan Kontrol Sistemi")
     print("=" * 60)
+    
+    # Check if running on Raspberry Pi
+    try:
+        with open('/proc/cpuinfo', 'r') as f:
+            cpuinfo = f.read()
+            if 'Raspberry Pi' not in cpuinfo:
+                print("⚠️  Bu program sadece Raspberry Pi'de çalışır!")
+                return
+    except:
+        print("⚠️  Sistem bilgisi okunamadı - Raspberry Pi kontrolü yapılamıyor")
+    
     print("🎨 Arayüz seçin:")
     print("1. 🖥️  GUI (Grafiksel Arayüz)")
     print("2. ⌨️  Terminal (Komut Satırı)")
@@ -423,8 +482,14 @@ def main():
         return
     
     # Initialize components
-    fan_controller = FanController()
-    data_logger = DataLogger()
+    print("🔧 Donanım başlatılıyor...")
+    try:
+        fan_controller = FanController()
+        data_logger = DataLogger()
+    except Exception as e:
+        print(f"❌ Başlatma hatası: {e}")
+        print("🔧 Sudo ile çalıştırmayı deneyin: sudo python3 rpi_fan_controller.py")
+        return
     
     if choice == "1":
         # Run GUI interface

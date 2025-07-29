@@ -32,18 +32,18 @@
 ## ✨ Özellikler
 
 - 🎛️ **Çift Arayüz**: Hem grafiksel (GUI) hem de terminal tabanlı kontrol
-- � ***Manuel Kontrol**: Gerçek zamanlı fan hızı ayarı (slider ve terminal)
+- 🎯 **Manuel Kontrol**: Gerçek zamanlı fan hızı ayarı (slider ve terminal)
 - 🤖 **Otomatik Mod**: Sıcaklık bazlı akıllı fan kontrolü
 - 📊 **Canlı İzleme**: Sürekli CPU sıcaklığı okuma ve görüntüleme
-- � **Verli Kayıt**: Zaman damgalı sıcaklık ve fan hızı logları
+- 📝 **Veri Kayıt**: Zaman damgalı sıcaklık ve fan hızı logları
 - ⚡ **Thread Güvenli**: Responsive GUI ile arka plan izleme
 - 🛡️ **Hata Yönetimi**: Donanım erişim hatalarına karşı koruma
-- 🧪 **Simülasyon Modu**: GPIO olmadan test imkanı
+- 🔧 **Donanım Kontrolü**: Gerçek GPIO ve PWM kontrolü (Sadece Raspberry Pi)
 
 ## 🛠️ Teknolojiler
 
 - **Platform**: Raspberry Pi 5 (Özel PWM fan header)
-- **Dil**: Python 3.7+ (GDScript benzeri basitlik)
+- **Dil**: Python 3.7+
 - **GUI Framework**: Tkinter (Cross-platform)
 - **Hardware Control**: RPi.GPIO (PWM kontrol)
 - **Threading**: Python threading (Responsive UI)
@@ -62,7 +62,7 @@
 
 ## 🚀 Kurulum
 
-### Hızlı Başlangıç
+### ⚡ Hızlı Başlangıç
 
 1. **Sistem güncellemesi**
 ```bash
@@ -84,21 +84,41 @@ git clone https://github.com/MustafaKemal0146/ThermoPi.git
 cd ThermoPi
 ```
 
-4. **Çalıştırma izni verin**
+4. **Programı çalıştırın**
 ```bash
-chmod +x rpi_fan_controller.py
-```
-
-5. **Uygulamayı başlatın**
-```bash
+# Normal kullanıcı ile (önerilen)
 python3 rpi_fan_controller.py
+
+# Eğer izin hatası alırsanız
+sudo python3 rpi_fan_controller.py
 ```
 
-### Otomatik Başlatma (Opsiyonel)
+### ⚠️ Önemli Notlar
+- **Sadece Raspberry Pi 5'te çalışır**
+- **PWM fan GPIO pin 18'e bağlı olmalı**
+- **İlk çalıştırmada sudo gerekebilir**
+
+### 🔄 Otomatik Başlatma (Opsiyonel)
+
+Sistem açılışında otomatik başlatmak için:
 
 ```bash
 # Systemd servisi oluştur
 sudo nano /etc/systemd/system/thermopi.service
+
+# İçeriği:
+[Unit]
+Description=ThermoPi Fan Controller
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/pi/ThermoPi/rpi_fan_controller.py
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
 
 # Servisi etkinleştir
 sudo systemctl enable thermopi.service
@@ -112,21 +132,24 @@ sudo systemctl start thermopi.service
 Program başlatıldığında size iki seçenek sunulur:
 
 ```
-Raspberry Pi 5 Fan Controller
-Choose interface:
-1. GUI (Tkinter)     # 🎨 Grafiksel arayüz
-2. Terminal          # ⌨️ Terminal arayüzü
+🌡️ ThermoPi - Raspberry Pi 5 Akıllı Fan Kontrol Sistemi
+============================================================
+🎨 Arayüz seçin:
+1. 🖥️  GUI (Grafiksel Arayüz)
+2. ⌨️  Terminal (Komut Satırı)
+
+🎯 Seçiminizi yapın (1 veya 2):
 ```
 
-### 🎨 GUI Arayüzü
+### � SGUI Arayüzü
 
-#### 🌟 Ana Özellikler
-- **�️ Snıcaklık Göstergesi**: Gerçek zamanlı CPU sıcaklığı
+#### �  Ana Özellikler
+- **🌡️ Sıcaklık Göstergesi**: Gerçek zamanlı CPU sıcaklığı
 - **🔄 Mod Değiştirici**: Manuel/Otomatik arası geçiş
-- **🎛️ Hız Slider'ı**: 0-100% fan hızı kontrolü
+- **�️ Hoız Slider'ı**: 0-100% fan hızı kontrolü
 - **📊 Durum Göstergesi**: Anlık fan hızı ve mod bilgisi
 
-#### 🎯 Kontrol Modları
+#### � ıKontrol Modları
 
 ##### 🎛️ Manuel Mod
 - Kullanıcı fan hızını doğrudan kontrol eder
@@ -144,17 +167,18 @@ Choose interface:
 
 #### 📋 Menü Seçenekleri
 ```
---- Raspberry Pi 5 Fan Controller ---
-CPU Temperature: 45.2°C
-Fan Speed: 0%
-Control Mode: Manual
-----------------------------------------
+🌡️ --- ThermoPi Durum Raporu ---
+🔥 CPU Sıcaklığı: 45.2°C
+🌀 Fan Hızı: 0%
+⚙️  Kontrol Modu: Manuel
+🔌 GPIO Pin: 18 (PWM)
+========================================
 
-Options:
-1. Toggle control mode (Manual/Automatic)
-2. Set fan speed (Manual mode only)  
-3. View current status
-4. Exit
+📋 Seçenekler:
+1. 🔄 Kontrol modunu değiştir (Manuel/Otomatik)
+2. 🎯 Fan hızını ayarla (Sadece manuel modda)
+3. 📊 Mevcut durumu görüntüle
+4. 🚪 Çıkış
 ```
 
 #### 🎯 Klavye Kısayolları
@@ -238,78 +262,9 @@ ThermoPi/
 ├── rpi_fan_controller.py    # Ana uygulama
 ├── requirements.txt         # Python bağımlılıkları
 ├── README.md               # Bu dokümantasyon
+├── test_fan.py             # Fan test scripti (opsiyonel)
 ├── fan_control_log.txt     # Otomatik oluşturulan log
-├── LICENSE                 # MIT lisansı
-└── assets/                 # Gelecekteki kaynaklar
-    ├── icons/
-    ├── sounds/
-    └── themes/
-```
-
-## 🏗️ Sınıf Mimarisi
-
-### �️ FanController
-**Donanım kontrol sınıfı:**
-- GPIO başlatma ve PWM kontrolü
-- Thermal zone'dan sıcaklık okuma
-- Otomatik hız hesaplama
-- Donanım temizleme
-
-### 📝 DataLogger  
-**Veri kayıt sınıfı:**
-- Dosya tabanlı log kayıtları
-- Zaman damgalı girişler
-- Hata yönetimi
-
-### 🖥️ FanControlGUI
-**Tkinter tabanlı GUI:**
-- Gerçek zamanlı görüntü güncellemeleri
-- İnteraktif kontroller
-- Arka plan izleme thread'i
-
-### ⌨️ TerminalInterface
-**Komut satırı arayüzü:**
-- Menü tabanlı etkileşim
-- Durum gösterimi
-- Arka plan izleme
-
-## 🛡️ Hata Yönetimi
-
-### 🔧 Donanım Hataları
-- **GPIO başlatma hatası**: Simülasyon moduna geçiş
-- **PWM kontrol hatası**: Konsol uyarısı
-- **Sıcaklık okuma hatası**: Simüle edilmiş değer
-
-### 📁 Dosya Hataları
-- **Log yazma hatası**: Konsol çıktısına devam
-- **İzin hatası**: Sudo önerisi
-- **Disk dolu**: Uyarı mesajı
-
-### 🧵 Thread Güvenliği
-- **GUI donması**: Arka plan thread'i ile önleme
-- **Kaynak sızıntısı**: Proper cleanup
-- **Çoklu erişim**: Thread-safe operasyonlar
-
-## 🧪 Test Modu
-
-### 🖥️ Simülasyon Özellikleri
-```python
-# GPIO olmadan çalışma
-if GPIO is None:
-    print("Simulation mode active")
-    
-# Simüle edilmiş sıcaklık
-def get_simulated_temp():
-    return 45.0 + (time.time() % 30)  # 45-75°C arası
-```
-
-### 🔍 Debug Modu
-```bash
-# Verbose çıktı ile çalıştırma
-python3 rpi_fan_controller.py --debug
-
-# Log seviyesi ayarlama
-export THERMOPI_LOG_LEVEL=DEBUG
+└── LICENSE                 # MIT lisansı
 ```
 
 ## 🚨 Sorun Giderme
@@ -347,13 +302,32 @@ cat /sys/class/thermal/thermal_zone0/temp
 # Çıktı: 45123 (45.123°C)
 ```
 
+### 🧪 Fan Testi (Opsiyonel)
+Sadece fan çalışmıyorsa test için kullanın:
+```bash
+# Fan test scripti - sorun varsa çalıştırın
+sudo python3 test_fan.py
+```
+
+### 🔧 Sistem Kontrolleri
+```bash
+# Sıcaklık sensörü kontrolü
+cat /sys/class/thermal/thermal_zone0/temp
+
+# Program logları
+tail -f fan_control_log.txt
+
+# Raspberry Pi model kontrolü
+cat /proc/cpuinfo | grep "Raspberry Pi"
+```
+
 ## 🎯 Gelecek Planları
 
 - [ ] 🎵 **Ses Efektleri**: Fan durumu için ses geri bildirimi
 - [ ] 📱 **Web Arayüzü**: Tarayıcı tabanlı kontrol paneli
-- [ ] � **GrafAik Gösterim**: Sıcaklık ve fan hızı grafikleri
+- [ ] 📊 **Grafik Gösterim**: Sıcaklık ve fan hızı grafikleri
 - [ ] 🌐 **IoT Entegrasyonu**: MQTT/HTTP API desteği
-- [ ] �  **Gamepad Desteği**: Fiziksel kontrol cihazları
+- [ ] 🎮 **Gamepad Desteği**: Fiziksel kontrol cihazları
 - [ ] 🔔 **Bildirimler**: E-posta/SMS uyarı sistemi
 - [ ] 🎨 **Tema Desteği**: Karanlık/aydınlık mod
 - [ ] 📈 **Makine Öğrenmesi**: Adaptif soğutma algoritması
@@ -368,11 +342,11 @@ cat /sys/class/thermal/thermal_zone0/temp
 5. Pull Request oluşturun
 
 ### 📝 Katkı Alanları
-- **� Bug Raplorları**: Hata bildirimleri
-- **� ÖzelRlik Önerileri**: Yeni fonksiyon fikirleri
-- **� ÖDokümantasyon**: README ve kod yorumları
+- **� Busg Raporları**: Hata bildirimleri
+- **💡 Özellik Önerileri**: Yeni fonksiyon fikirleri
+- **📚 Dokümantasyon**: README ve kod yorumları
 - **🌐 Çeviriler**: Diğer dillere çeviri
-- **�  UI/UX**: Arayüz iyileştirmeleri
+- **🎨 UI/UX**: Arayüz iyileştirmeleri
 - **⚡ Performans**: Optimizasyon önerileri
 
 ## 📚 Kaynaklar
