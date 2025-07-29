@@ -2,7 +2,6 @@
 
 **🚀 Raspberry Pi 5 için gelişmiş soğutma çözümü:** [Hemen başlayın](#-kurulum)
 
-
 <div align="center">
 <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=28&duration=3000&pause=1000&color=00FF88&center=true&vCenter=true&width=1000&lines=ThermoPi+-+Akıllı+Fan+Kontrol+Sistemi;Raspberry+Pi+5+Soğutma+Çözümü;Otomatik+Sıcaklık+Yönetimi;Manuel+ve+Akıllı+Kontrol+Modu" alt="Typing SVG" />
 </div>
@@ -33,10 +32,10 @@
 ## ✨ Özellikler
 
 - 🎛️ **Çift Arayüz**: Hem grafiksel (GUI) hem de terminal tabanlı kontrol
-- 🎯 **Manuel Kontrol**: Gerçek zamanlı fan hızı ayarı (slider ve terminal)
+- � ***Manuel Kontrol**: Gerçek zamanlı fan hızı ayarı (slider ve terminal)
 - 🤖 **Otomatik Mod**: Sıcaklık bazlı akıllı fan kontrolü
 - 📊 **Canlı İzleme**: Sürekli CPU sıcaklığı okuma ve görüntüleme
-- 📝 **Veri Kayıt**: Zaman damgalı sıcaklık ve fan hızı logları
+- � **Verli Kayıt**: Zaman damgalı sıcaklık ve fan hızı logları
 - ⚡ **Thread Güvenli**: Responsive GUI ile arka plan izleme
 - 🛡️ **Hata Yönetimi**: Donanım erişim hatalarına karşı koruma
 - 🧪 **Simülasyon Modu**: GPIO olmadan test imkanı
@@ -81,7 +80,7 @@ pip3 install RPi.GPIO
 
 3. **Projeyi indirin**
 ```bash
-git clone https://github.com/yourusername/ThermoPi.git
+git clone https://github.com/MustafaKemal0146/ThermoPi.git
 cd ThermoPi
 ```
 
@@ -122,7 +121,7 @@ Choose interface:
 ### 🎨 GUI Arayüzü
 
 #### 🌟 Ana Özellikler
-- **🌡️ Sıcaklık Göstergesi**: Gerçek zamanlı CPU sıcaklığı
+- **�️ Snıcaklık Göstergesi**: Gerçek zamanlı CPU sıcaklığı
 - **🔄 Mod Değiştirici**: Manuel/Otomatik arası geçiş
 - **🎛️ Hız Slider'ı**: 0-100% fan hızı kontrolü
 - **📊 Durum Göstergesi**: Anlık fan hızı ve mod bilgisi
@@ -249,7 +248,7 @@ ThermoPi/
 
 ## 🏗️ Sınıf Mimarisi
 
-### 🎛️ FanController
+### �️ FanController
 **Donanım kontrol sınıfı:**
 - GPIO başlatma ve PWM kontrolü
 - Thermal zone'dan sıcaklık okuma
@@ -352,9 +351,9 @@ cat /sys/class/thermal/thermal_zone0/temp
 
 - [ ] 🎵 **Ses Efektleri**: Fan durumu için ses geri bildirimi
 - [ ] 📱 **Web Arayüzü**: Tarayıcı tabanlı kontrol paneli
-- [ ] 📊 **Grafik Gösterim**: Sıcaklık ve fan hızı grafikleri
+- [ ] � **GrafAik Gösterim**: Sıcaklık ve fan hızı grafikleri
 - [ ] 🌐 **IoT Entegrasyonu**: MQTT/HTTP API desteği
-- [ ] 🎮 **Gamepad Desteği**: Fiziksel kontrol cihazları
+- [ ] �  **Gamepad Desteği**: Fiziksel kontrol cihazları
 - [ ] 🔔 **Bildirimler**: E-posta/SMS uyarı sistemi
 - [ ] 🎨 **Tema Desteği**: Karanlık/aydınlık mod
 - [ ] 📈 **Makine Öğrenmesi**: Adaptif soğutma algoritması
@@ -369,11 +368,11 @@ cat /sys/class/thermal/thermal_zone0/temp
 5. Pull Request oluşturun
 
 ### 📝 Katkı Alanları
-- **🐛 Bug Raporları**: Hata bildirimleri
-- **💡 Özellik Önerileri**: Yeni fonksiyon fikirleri
-- **📚 Dokümantasyon**: README ve kod yorumları
+- **� Bug Raplorları**: Hata bildirimleri
+- **� ÖzelRlik Önerileri**: Yeni fonksiyon fikirleri
+- **� ÖDokümantasyon**: README ve kod yorumları
 - **🌐 Çeviriler**: Diğer dillere çeviri
-- **🎨 UI/UX**: Arayüz iyileştirmeleri
+- **�  UI/UX**: Arayüz iyileştirmeleri
 - **⚡ Performans**: Optimizasyon önerileri
 
 ## 📚 Kaynaklar
@@ -403,12 +402,11 @@ MIT License - Özgürce kullanın, değiştirin, dağıtın
 <div align="center">
 <img src="https://images.pexels.com/photos/163100/circuit-circuit-board-resistor-computer-163100.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop" width="100" style="border-radius: 50%;" alt="ThermoPi Developer"/>
 
-**ThermoPi Development Team**
+**Mustafa Kemal Cingil**
 
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/yourusername)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/yourprofile)
-[![Website](https://img.shields.io/badge/Website-00FF88?style=for-the-badge&logo=google-chrome&logoColor=white)](https://yourwebsite.com)
-[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:your@email.com)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/MustafaKemal0146)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mustafakemalcingil/)
+[![Website](https://img.shields.io/badge/Website-00FF88?style=for-the-badge&logo=google-chrome&logoColor=white)](https://mustafakemalcingil.site/)
 
 </div>
 
