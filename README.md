@@ -2,7 +2,6 @@
 
 **🚀 Raspberry Pi 5 için gelişmiş soğutma çözümü:** [Hemen başlayın](#-kurulum)
 
-**🎬 Demo video için:** [YouTube'da izleyin](https://youtube.com/watch?v=demo) *(Yakında)*
 
 <div align="center">
 <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=28&duration=3000&pause=1000&color=00FF88&center=true&vCenter=true&width=1000&lines=ThermoPi+-+Akıllı+Fan+Kontrol+Sistemi;Raspberry+Pi+5+Soğutma+Çözümü;Otomatik+Sıcaklık+Yönetimi;Manuel+ve+Akıllı+Kontrol+Modu" alt="Typing SVG" />
